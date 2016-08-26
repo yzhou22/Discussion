@@ -1,0 +1,198 @@
+---
+title: "MA684 Discussion"
+author: "Yitong"
+date: "September 06, 2016"
+output: html_document
+---
+
+<style type="text/css">
+body{
+  font-family: Helvetica;
+  font-size: 14pt;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set
+library(ggplot2)
+library(knitr)
+```
+
+<p></br></p>
+
+# Introduction
+
+---
+
+In this discussion, you will learn how to use R Markdown with `knitr` and  create a nice report.</p>
+
+The base structure for a markdown file contains both R code and Knitr code. Any code between the sets of three backticks is R code and any code outside is Knitr.</p>
+
+Chunk options are written in one line. The followings are some popular chunk options. </p>
+- `echo=TRUE` - display the command  ;  `error=FALSE` - do not display any error messages 
+- `echo=TRUE` - run the code         ;  `message =FALSE` - do not display any messages 
+- `include=TRUE` - show the output   ;  `warning =FALSE` - do not display any warning  messages 
+
+<p></br></p>
+
+# Exploratory Data Analysis
+
+---
+
+You can get the example data from this [link](http://socserv.socsci.mcmaster.ca/jfox/Books/Applied-Regression-3E/datasets/index.html) </p>
+
+The code to read in the data is already written for you. Your job is to look at the data and think about the following </p>
+1. What are some hypothesis that can be addressed from the data?
+2. Does regression seem like a good analysis strategy?
+3. Is there some transformation that you can apply so that you can use regression?
+<p></br></p>
+
+## <span style="color:blue"> Example: United Nations Social Indicators Data </span>
+
+---
+
+### Variables: 
+  - region: Africa, America, Asia, Europe, Oceania
+  - educationMale: Average number of years of education for men
+  - lifeMale: Expectation of life at birth for men
+  - lifeFemale: Expectation of life at birth for women
+  - infantMortality: infant deaths per 1000 live births.
+
+### Making plots
+
+For a quick plot, you can use qplot() which wraps up the details of ggplot. The syntax looks like this
+`qplot(x, y, data=, color=, shape=, size=, geom=, method=, ...)` </p>
+
+The `ggplot2` package provides a more flexible syntax for creating elegant and complex plots. 
+`ggplot(data, mapping) + layer( stat = "", geom = "", position = "", geom_parms = list(),...)` </p>
+
+Now let's use the example data to do some data visualization.
+
+<p></br></p>
+**Scatterplot**
+
+```{r, message=FALSE, warning=FALSE}
+# read data
+unitednations<-read.table("http://socserv.socsci.mcmaster.ca/jfox/Books/Applied-Regression-3E/datasets/UnitedNations.txt")
+
+# scatterplot using qplot()
+qplot(lifeFemale, lifeMale, data = unitednations, colour = region, main = "scatterplot using qplot()" )
+```
+
+Add a smoother to show a trend
+
+```{r,  message=FALSE, warning=FALSE}
+qplot(lifeFemale, lifeMale, data = unitednations, colour = region, geom = c("point", "smooth"))   
+```
+
+Add a line specified by slope and intercept by using `geom_ablin` in ggplot()
+
+```{r, message=FALSE, warning=FALSE, fig.width=7, fig.height=5, fig.align='left'}
+# scatterplot using ggplot()
+unitednations_gp <- ggplot(unitednations)
+
+unitednations_gp + aes(x=lifeFemale, y=lifeMale, color=region)+ geom_point()+
+                   geom_abline(intercept=0,slope=1) + ggtitle("scatterplot using ggplot()")
+```
+
+<p></br></p>
+
+**Histogram and density plot**
+
+```{r, message=FALSE, warning=FALSE}
+# histogram
+unitednations_gp + aes(x=lifeFemale, fill=region)+ geom_histogram(binwidth =1)
+```
+
+To compare distributions of "lifeFemale" by regions, we can use a density plot
+
+```{r, message=FALSE, warning=FALSE}
+# density plot
+unitednations_gp + aes(x=lifeFemale,fill = region, colour = region)+ geom_density(alpha = .1)
+```
+
+<p></br></p>
+
+### Fitting a model
+For example, we fit a linear regression model with two predictors ("educationMale","region") and a response variable "lifeMale".
+```{r}
+regout = lm(lifeMale ~ factor(region) + educationMale, data =unitednations)
+```
+
+The kable function is sufficient to make a table for the  model output, although it doesn’t have many options.
+```{r, kable}
+kable(summary(regout)$coef, digits=2)
+```
+
+<p></br></p>
+
+## <span style="color:blue"> Example: Long’s Data on Occupational Attainment </span>
+
+---
+
+### Variables: 
+  - experience: possible years of work experience
+  - education: number of year of formal education
+  - race: white or nonwhite
+  - occupation: menial, bluecollar, craft, whitecollar, professional
+  
+### Boxplot
+
+Boxplot is good for measuring dispersion and telling outlier points. </p>
+Note that "occupation" is a categorical variable. 
+```{r, message=FALSE, warning=FALSE}
+# read data
+OA<-read.table("http://socserv.socsci.mcmaster.ca/jfox/Books/Applied-Regression-3E/datasets/GSS-Long.txt")
+
+# boxplot
+ggplot(OA) + aes(x=occupation, y=education, color=race)+ geom_boxplot()
+```
+
+### Model
+In this case, we use a logistic regression to predict the probability of attaining certain occupation, and use kable to show the output.
+```{r}
+logout = glm(occupation ~ education+ race + experience, family = binomial(link=logit), data = OA) 
+kable(summary(logout)$coef, digits=2)
+```
+
+
+<p></br></p>
+
+## <span style="color:blue"> Example: Sahlins’s Data on Agricultural Production in Mazulu Village </span>
+
+---
+
+### Variables: 
+  - consumers: weighted number of consumers per gardener in each household
+  - acres: number of acres per gardener tended in each household
+
+Notes: The observations are 20 households in an African village. </p>
+
+### Plot
+Draw a scatterplot of acres versus consumers. What kind of relationship can you see? linear or nonlinear?
+```{r, message=FALSE, warning=FALSE}
+# read data
+sahlins<-read.table("http://socserv.socsci.mcmaster.ca/jfox/Books/Applied-Regression-3E/datasets/Sahlins.txt")
+
+# use geom_smooth to help see patterns 
+ggplot(sahlins) + aes(x=consumers, y=acres)+ geom_point()+ geom_smooth()
+```
+
+### Model
+The relationship seems to "locally polynomial", so we use LOESS regression which stands for locally weighted scatterplot smoothing.
+```{r}
+regout2 = loess(acres ~ consumers, data =sahlins, span=.5)
+summary(regout2)
+```
+
+<p></br></p>
+
+Let's plot fitted values. A nonlinear line looks good in general.  
+```{r}
+plot(acres ~ consumers,data =sahlins)
+i = order(sahlins$consumers)
+lines(sahlins$consumers[i],regout2$fitted[i],col="red")
+```
+
+
+
