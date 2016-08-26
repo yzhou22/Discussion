@@ -82,11 +82,11 @@ The code to read in the data is already written for you. Your job is to look at 
 
 ### Making plots
 
-For a quick plot, you can use qplot() which wraps up the details of ggplot. The syntax looks like this
-`qplot(x, y, data=, color=, shape=, size=, geom=, method=, ...)` </p>
+For a quick plot, you can use qplot() which wraps up the details of ggplot. The syntax looks like this </p>
+`qplot(x, y, data=, color=, shape=, size=, geom=, method=, ...)` 
 
-The `ggplot2` package provides a more flexible syntax for creating elegant and complex plots. 
-`ggplot(data, mapping) + layer( stat = "", geom = "", position = "", geom_parms = list(),...)` </p>
+The `ggplot2` package provides a more flexible syntax for creating elegant and complex plots. </p>
+`ggplot(data, mapping) + layer( stat = "", geom = "", position = "", geom_parms = list(),...)` 
 
 Now let's use the example data to do some data visualization.
 
