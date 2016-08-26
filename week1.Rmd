@@ -171,7 +171,7 @@ ggplot(OA) + aes(x=occupation, y=education, color=race)+ geom_boxplot()
 ```
 
 ### Model
-In this case, we use a logistic regression to predict the probability of attaining certain occupation, and use kable to show the output.
+In this case, we use a logistic regression to predict the probability of attaining certain occupation and kable to display the output.
 ```{r}
 logout = glm(occupation ~ education+ race + experience, family = binomial(link=logit), data = OA) 
 kable(summary(logout)$coef, digits=2)
