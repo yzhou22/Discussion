@@ -8,7 +8,7 @@ output: html_document
 <style type="text/css">
 body{
   font-family: Helvetica;
-  font-size: 14pt;
+  font-size: 13pt;
 }
 </style>
 
@@ -24,6 +24,27 @@ library(knitr)
 
 ---
 
+For homework 1 you will create your first knitr report and perform bunch of exploratory data analysis. This will be the first of many reports you will generate throughtout the year.  Many questions will be open ended but you will be evaluated on the
+
+1. Accuracy and creativity of your answer.
+2. Clenlyness of your report.
+3. How legible your code is written.
+
+There are couple rules that you must follow
+
+1. Put comments on your code where ever necessary.
+2. The code should run from top to bottom.
+3. Name the variables well so that what you are trying to do is obvious.
+4. Test your script when you are done.
+
+Make sure the code you submit runs on a clean R environment.
+If a grader runs your code and get an error, you get 50% off for that homework after fixing the mistake.
+
+You are welcome to help each other but write the code on your own 
+since we will test you on your coding ability here and there.
+These spot tests are to get you prepared for your future interviews.
+
+**About this document** </p> 
 In this discussion, you will learn how to use R Markdown with `knitr` and  create a nice report.</p>
 
 The base structure for a markdown file contains both R code and Knitr code. Any code between the sets of three backticks is R code and any code outside is Knitr.</p>
@@ -41,8 +62,7 @@ Chunk options are written in one line. The followings are some popular chunk opt
 
 You can get the example data from this [link](http://socserv.socsci.mcmaster.ca/jfox/Books/Applied-Regression-3E/datasets/index.html) </p>
 
-The code to read in the data is already written for you. Your job is to look at the data and think about the following.
-
+The code to read in the data is already written for you. Your job is to look at the data and think about the following
 
 1. What are some hypothesis that can be addressed from the data?
 2. Does regression seem like a good analysis strategy?
@@ -62,11 +82,11 @@ The code to read in the data is already written for you. Your job is to look at 
 
 ### Making plots
 
-For a quick plot, you can use qplot() which wraps up the details of ggplot. The syntax looks like this. </p>
+For a quick plot, you can use qplot() which wraps up the details of ggplot. The syntax looks like this
 `qplot(x, y, data=, color=, shape=, size=, geom=, method=, ...)` </p>
 
-The `ggplot2` package provides a more flexible syntax for creating elegant and complex plots. </p>
-`ggplot(data, mapping) + layer( stat = "", geom = "", position = "", geom_parms = list(),...)` 
+The `ggplot2` package provides a more flexible syntax for creating elegant and complex plots. 
+`ggplot(data, mapping) + layer( stat = "", geom = "", position = "", geom_parms = list(),...)` </p>
 
 Now let's use the example data to do some data visualization.
 
