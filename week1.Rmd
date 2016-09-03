@@ -8,7 +8,7 @@ output: html_document
 <style type="text/css">
 body{
   font-family: Helvetica;
-  font-size: 13pt;
+  font-size: 12pt;
 }
 </style>
 
@@ -51,7 +51,7 @@ The base structure for a markdown file contains both R code and Knitr code. Any 
 
 Chunk options are written in one line. The followings are some popular chunk options. </p>
 - `echo=TRUE` - display the command  ;  `error=FALSE` - do not display any error messages 
-- `echo=TRUE` - run the code         ;  `message =FALSE` - do not display any messages 
+- `eval=TRUE` - run the code         ;  `message =FALSE` - do not display any messages 
 - `include=TRUE` - show the output   ;  `warning =FALSE` - do not display any warning  messages 
 
 <p></br></p>
@@ -113,8 +113,18 @@ Add a line specified by slope and intercept by using `geom_ablin` in ggplot()
 # scatterplot using ggplot()
 unitednations_gp <- ggplot(unitednations)
 
-unitednations_gp + aes(x=lifeFemale, y=lifeMale, color=region)+ geom_point()+
-                   geom_abline(intercept=0,slope=1) + ggtitle("scatterplot using ggplot()")
+unitednations_gp + aes(x=lifeFemale, y=lifeMale, color=region)+ geom_point()+ 
+                   geom_abline(intercept=0,slope=1) + xlab("Expectation of life at birth for women") + 
+                   ylab("Expectation of life at birth for men") +
+                   ggtitle("scatterplot using ggplot()")
+```
+
+Split up your data by one or more variables - lay out panels in a grid using `facet_grid` </p>
+e.g. facet panels by region (a categorical variable with 5 levels) and show regions on the top
+```{r, message=FALSE, warning=FALSE, fig.width=13, fig.height=7}
+unitednations_gp +aes(x=lifeFemale, y=lifeMale, color=region)+geom_point()+ 
+                  stat_smooth(method=lm)+
+                  facet_grid( .~region, scales="fixed", labeller= label_both)
 ```
 
 <p></br></p>
@@ -133,6 +143,12 @@ To compare distributions of "lifeFemale" by regions, we can use a density plot
 unitednations_gp + aes(x=lifeFemale,fill = region, colour = region)+ geom_density(alpha = .1)
 ```
 
+If you want to display density plots by region, `facet_wrap` can wrap with a certain number of columns or rows. 
+```{r,message=FALSE, warning=FALSE, fig.width=13, fig.height=8}
+unitednations_gp + aes(x=lifeMale,fill = region, colour = region)+ geom_density(alpha = .1)+ 
+                   facet_wrap(~region, nrow = 2)
+```
+
 <p></br></p>
 
 ### Fitting a model
@@ -148,35 +164,54 @@ kable(summary(regout)$coef, digits=2)
 
 <p></br></p>
 
-## <span style="color:blue"> Example: Long’s Data on Occupational Attainment </span>
+## <span style="color:blue"> Example: Leinhardt and Wasserman’s Data on Infant Mortality </span>
 
 ---
 
 ### Variables: 
-  - experience: possible years of work experience
-  - education: number of year of formal education
-  - race: white or nonwhite
-  - occupation: menial, bluecollar, craft, whitecollar, professional
+ - income: Per-capita income in U.S. dollars. 
+ - infant: Infant-mortality rate per 1000 live births.  
+ - region: Africa; Americas; Asia, Asia and Oceania; Europe.  
+ - oil: Oil-exporting country: no, yes.  
   
-### Boxplot
+### Plots
 
 Boxplot is good for measuring dispersion and telling outlier points. </p>
-Note that "occupation" is a categorical variable. 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, fig.width=13, fig.height=7}
 # read data
-OA<-read.table("http://socserv.socsci.mcmaster.ca/jfox/Books/Applied-Regression-3E/datasets/GSS-Long.txt")
+leinhardt<-read.table("http://socserv.socsci.mcmaster.ca/jfox/Books/Applied-Regression-3E/datasets/Leinhardt.txt")
 
 # boxplot
-ggplot(OA) + aes(x=occupation, y=education, color=race)+ geom_boxplot()
+ggplot(leinhardt) + aes(x=region, y=infant/1000, color=oil)+ geom_boxplot(width = .7)+
+                    facet_wrap(~oil, ncol = 2)+ stat_summary(fun.y=mean, colour="darkred", geom="point", shape=15, size=2)+
+                    ylab("infant rate") + ggtitle("Relationship between region and infant rate")
+```
+
+Seems like linear relationship only exists in Europe
+```{r, message=FALSE, warning=FALSE, fig.width=13, fig.height=7}
+# scatterplot
+ggplot(leinhardt) + aes(x=income, y=infant, color=region) + geom_point()+ geom_smooth(method = "lm")+
+                   facet_grid(. ~region)
+```
+
+Any luck if we take a log transformation for the data?
+```{r, message=FALSE, warning=FALSE,fig.width=13, fig.height=7}
+ggplot(leinhardt) + aes(x=log(income), y=log(infant), color=region)+ geom_point() +
+                    geom_smooth(method = "lm")+ facet_grid(. ~region)
 ```
 
 ### Model
-In this case, we use a logistic regression to predict the probability of attaining certain occupation and kable to display the output.
+You can fit a linear model for data only in Europe
 ```{r}
-logout = glm(occupation ~ education+ race + experience, family = binomial(link=logit), data = OA) 
+logout = lm(infant ~ income, data = leinhardt[which(leinhardt$region=="Europe"),]) 
 kable(summary(logout)$coef, digits=2)
 ```
 
+How about the model for the whole data?
+```{r}
+logout2 = lm(log(infant) ~ log(income)*region, data = leinhardt)  
+kable(summary(logout2)$coef, digits=c(2, 2, 3, 3))
+```
 
 <p></br></p>
 
@@ -215,6 +250,4 @@ plot(acres ~ consumers,data =sahlins)
 i = order(sahlins$consumers)
 lines(sahlins$consumers[i],regout2$fitted[i],col="red")
 ```
-
-
 
